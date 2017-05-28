@@ -2,22 +2,23 @@
 
 '''
 This script is based on lesson material from Udacity's MongoDB course but
-rewritten and repurposed the the choosen data set and usecase.
+rewritten and repurposed the the choosen data set and use case.
 '''
 
 import xml.etree.cElementTree as ET
-from collections import defaultdict
 import re
-import pprint
 import sys
 
 street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
 
 # Array containing expected street names for our data
-expected = [u'gatan', u'vägen', u' gata', u'backen']
+expected = [u'gatan', u'vägen', u' gata', u' väg', u'väg', u'backen',
+            u'gården', u'gård', u'plan', u'bro', u'torp', u'allén', u'allé',
+            u'Industriområde']
 
 # Mapping between abbriviations and full lenght words
 mapping = {}
+
 
 def audit_street_type(unknown_street_types, street_name):
     '''
@@ -27,18 +28,20 @@ def audit_street_type(unknown_street_types, street_name):
     '''
     unknown = True
 
-    for expected_name in expected:
-        if expected_name in street_name:
+    for expected_end in expected:
+        if street_name.endswith(expected_end):
             unknown = False
 
     if unknown:
         unknown_street_types.add(street_name)
+
 
 def is_street_name(elem):
     '''
     Function checking if the provided osm element (elem) is a street or not.
     '''
     return (elem.attrib['k'] == "addr:street")
+
 
 def audit(osmfile):
     '''
@@ -59,6 +62,7 @@ def audit(osmfile):
 
     return unknown_street_types
 
+
 def update_name(name, mapping):
     '''
     Updates street names based on the mapping dictionary defined at the top of
@@ -68,8 +72,9 @@ def update_name(name, mapping):
         if key in name:
             name = name.replace(key, mapping[key])
             break
-    
+
     return name
+
 
 def main(argv):
     unknown_streets = audit(argv)
@@ -77,6 +82,6 @@ def main(argv):
     for street in unknown_streets:
         print street
 
+
 if __name__ == "__main__":
     main(sys.argv[1])
-
