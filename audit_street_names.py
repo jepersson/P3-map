@@ -2,7 +2,7 @@
 
 '''
 This script is based on lesson material from Udacity's MongoDB course but
-rewritten and repurposed the the choosen data set and use case.
+rewritten and repurposed for the chosen data set and use case.
 '''
 
 import xml.etree.cElementTree as ET
@@ -17,11 +17,12 @@ def audit_street_name(unknown_street_names, street_name):
     '''
     street_preffixes = [u'Norra', u'Södra', u'Västra', u'Östra', u'Stora',
                         u'Lilla', u'Nya', u'Gamla']
-    street_types = [u'Gata', u'Väg', u'Allé', u'Gården']
-    street_endings = [u'gatan', u'vägen', u'väg', u'allén', u'gården', u'gård']
+    street_types = [u'Gata', u'Väg', u'Allé', u'Gården', u'Gård', u'Torget',
+                    u'Skola', u'Industriområde', u'Bro', u'Berget']
+    street_endings = [u'gatan', u'vägen', u'väg', u'allén', u'gården', u'gård',
+                      u'platsen', u'plan', u'torg', u'kullen', u'leden',
+                      u'torp', u'backen', u'åsen']
 
-    street_name = street_name.replace(',', '')
-    street_name = street_name.title()
     components = street_name.split(' ')
 
     if len(components) <= 3:
@@ -42,6 +43,20 @@ def audit_street_name(unknown_street_names, street_name):
             return
 
 
+def update_street_name(street_name):
+    communities = [u'Hol', u'Horla', u'Asklanda', u'Rommefall', u'Tämta']
+    street_name = street_name.replace(',', '')
+    street_name = street_name.title()
+
+    # Check if community name is set last and then push it in from of the
+    # street address.
+    components = street_name.split(' ')
+    if components[-1] in communities:
+        street_name = components[-1] + ' ' + ' '.join(components[:-1])
+
+    return street_name
+
+
 def is_street_name(elem):
     '''
     Function checking if the provided osm element (elem) is a street or not.
@@ -49,28 +64,29 @@ def is_street_name(elem):
     return (elem.attrib['k'] == "addr:street")
 
 
-def audit(osmfile):
+def clean(osmfile):
     '''
     Function that checks the osm data we give as an argument to our script and
     writes out all the different street types not present in the expected
     street name array.
     '''
     osm_file = open(osmfile, "r")
-    unknown_street_types = set()
+    unknown_streets = set()
 
     for event, elem in ET.iterparse(osm_file, events=("start",)):
         if elem.tag == "node" or elem.tag == "way":
             for tag in elem.iter("tag"):
                 if is_street_name(tag):
-                    audit_street_name(unknown_street_types, tag.attrib['v'])
+                    street_name = update_street_name(tag.attrib['v'])
+                    audit_street_name(unknown_streets, street_name)
 
     osm_file.close()
 
-    return unknown_street_types
+    return unknown_streets
 
 
 def main(argv):
-    unknown_streets = audit(argv)
+    unknown_streets = clean(argv)
 
     print 'Street names not conforming to expected (Swedish) naming standards:'
 
