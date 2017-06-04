@@ -15,9 +15,9 @@ def audit_city_name(unknown_names, city_name):
     in the expected name format. If not add the post_code to the
     provided unknown_codes set.
     '''
-    expected_names = [u'Alingsås', u'Herrljunga', u'Vårgårda']
+    expected_names = [u'Alingsås', u'Herrljunga', u'Vårgårda', u'Östadkulle',
+                      u'Fristad', u'Ljung']
 
-    print city_name
     if city_name not in expected_names:
         unknown_names.add(city_name)
 
@@ -32,6 +32,11 @@ def is_city_name(elem):
 
 
 def update_city_name(city_name):
+    city_name = city_name.title()
+
+    if city_name == '524 92':
+        city_name = u'Herrljunga'
+
     return city_name
 
 
@@ -47,7 +52,7 @@ def clean_city_names(osmfile):
         if elem.tag == "node" or elem.tag == "way":
             for tag in elem.iter("tag"):
                 if is_city_name(tag):
-                    city_name = tag.attrib['v']
+                    city_name = update_city_name(tag.attrib['v'])
                     audit_city_name(unknown_names, city_name)
 
     osm_file.close()
