@@ -4,6 +4,8 @@ client = MongoClient()
 db = client.p3
 collection = db.maps
 
+# Initial DB queries for data overview
+
 print("Number of documents:")
 print("> collection.find().count()")
 print(collection.find().count())
@@ -48,3 +50,6 @@ agg_results = db.maps.aggregate([
     {"$limit": 10}
 ])
 print("\n".join(map(str, [x for x in agg_results])))
+
+
+# Data queries for further data exploration
