@@ -147,8 +147,6 @@ def shape_element(element):
                             audit_city_names.update_city_name(value)
                     else:
                         node['address'][subtag_keys[1]] = value
-                elif subtag_keys[0] == "turn":
-                    continue
                 else:
                     node[subtag_keys[1]] = value
             else:
@@ -158,7 +156,8 @@ def shape_element(element):
                 for subtag in element.iter('nd'):
                     node['node_refs'].append(subtag.attrib['ref'])
 
-            return node
+        return node
+
     else:
         return None
 
